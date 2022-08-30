@@ -38,7 +38,7 @@ export default function App3() {
       });
   }, []);
   const rows = [];
-
+  //eslint-disable-next-line
   Product.map((item) => {
     rows.push(
       createData(

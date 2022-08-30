@@ -24,15 +24,18 @@ import { visuallyHidden } from "@mui/utils";
 
 export default function App3() {
   const [Product, setProduct] = React.useState([]);
-  const [Counte, setCounte] = React.useState();
+  const [Counte, setCounte] = React.useState(0);
+  const [Skip, setSkip] = React.useState(0);
+  const [limit, setLimit] = React.useState(0);
 
-  React.useEffect((skip) => {
-    // ${skip}
-    fetch(`https://dummyjson.com/users?&skip=0&limit=100`)
+  React.useEffect(() => {
+    fetch(`https://dummyjson.com/users?&skip=${Skip}&limit=10`)
       .then((res) => res.json())
       .then((json) => {
         setProduct(json.users);
         setCounte(json.total);
+        setSkip(json.skip);
+        setLimit(json.limit);
         console.log(json);
         console.log(json.users);
       });

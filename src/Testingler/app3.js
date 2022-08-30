@@ -21,49 +21,47 @@ import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
-import axios from "axios";
 
-export default function App2() {
+export default function App3() {
   const [Product, setProduct] = React.useState([]);
-  const [Counte, setCounte] = React.useState("");
+  const [Counte, setCounte] = React.useState();
 
-  const DataApi = async (skip) => {
-    try {
-      const Data = await axios.get(
-        `https://api.yamiz.fr/api/v1/products?$top=10&$skip=${skip}&$q=&$expand=category`
-      );
-      console.log(Data.data);
-
-      setProduct(Data.data.value);
-      setCounte(Data.data.count);
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-
-  React.useEffect(() => {
-    DataApi();
+  React.useEffect((skip) => {
+    // ${skip}
+    fetch(`https://dummyjson.com/users?&skip=0&limit=100`)
+      .then((res) => res.json())
+      .then((json) => {
+        setProduct(json.users);
+        setCounte(json.total);
+        console.log(json);
+        console.log(json.users);
+      });
   }, []);
   const rows = [];
-  //eslint-disable-next-line
+
   Product.map((item) => {
     rows.push(
       createData(
-        item.name,
+        item.username,
+        item.password,
         item.id,
-        item.packaging,
-        item.salePackaging,
-        item.created_at
+        item.phone,
+        item.email,
+        item.address.address,
+        item.ip
       )
     );
   });
-  function createData(name, id, packaging, salePackaging, created_at) {
+
+  function createData(username, password, id, phone, email, Address, ip) {
     return {
-      name,
+      username,
+      password,
       id,
-      packaging,
-      salePackaging,
-      created_at,
+      phone,
+      email,
+      Address,
+      ip,
     };
   }
 
@@ -99,24 +97,33 @@ export default function App2() {
 
   const headCells = [
     {
-      id: "name",
-      label: "Names",
-    },
-    {
       id: "id",
-      label: "id",
+      numeric: true,
+      label: "ID",
     },
     {
-      id: "packaging",
-      label: "packaging",
+      id: "username",
+      label: "Usernames",
     },
     {
-      id: "salePackaging",
-      label: "salePackaging",
+      id: "password",
+      label: "Passwords",
     },
     {
-      id: "created_at",
-      label: "created_at",
+      id: "phone",
+      label: "Telephone",
+    },
+    {
+      id: "email",
+      label: "E-mail",
+    },
+    {
+      id: "Address",
+      label: "Address User",
+    },
+    {
+      id: "ip",
+      label: "@IP",
     },
   ];
 
@@ -150,7 +157,7 @@ export default function App2() {
           {headCells.map((headCell) => (
             <TableCell
               key={headCell.id}
-              align={headCell.numeric ? "right" : "left"}
+              align={headCell.numeric ? "left" : "right"}
               padding={headCell.disablePadding ? "none" : "normal"}
               sortDirection={orderBy === headCell.id ? order : false}
             >
@@ -256,19 +263,19 @@ export default function App2() {
   };
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
+      const newSelected = rows.map((n) => n.username);
       setSelected(newSelected);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, username) => {
+    const selectedIndex = selected.indexOf(username);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, username);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -296,7 +303,7 @@ export default function App2() {
     setDense(event.target.checked);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const isSelected = (username) => selected.indexOf(username) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -322,21 +329,21 @@ export default function App2() {
             />
             <TableBody>
               {/* if you don't need to support IE11, you can replace the `stableSort` call with:
-       rows.slice().sort(getComparator(order, orderBy)) */}
+     rows.slice().sort(getComparator(order, orderBy)) */}
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
+                  const isItemSelected = isSelected(row.username);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
+                      onClick={(event) => handleClick(event, row.username)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
+                      key={row.username}
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
@@ -348,18 +355,15 @@ export default function App2() {
                           }}
                         />
                       </TableCell>
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                      >
-                        {row.name}
+                      <TableCell component="th" id={labelId} scope="row">
+                        {row.id}
                       </TableCell>
-                      <TableCell align="right">{row.id}</TableCell>
-                      <TableCell align="right">{row.packaging}</TableCell>
-                      <TableCell align="right">{row.salePackaging}</TableCell>
-                      <TableCell align="right">{row.created_at}</TableCell>
+                      <TableCell align="right">{row.username}</TableCell>
+                      <TableCell align="right">{row.password}</TableCell>
+                      <TableCell align="right">{row.phone}</TableCell>
+                      <TableCell align="right">{row.email}</TableCell>
+                      <TableCell align="right">{row.Address}</TableCell>
+                      <TableCell align="right">{row.ip}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -376,7 +380,7 @@ export default function App2() {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10, 25, 50, 100]}
           component="div"
           count={Counte}
           rowsPerPage={rowsPerPage}

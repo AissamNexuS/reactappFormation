@@ -331,8 +331,8 @@ export default function App3() {
               rowCount={rows.length}
             />
             <TableBody>
-              {/* if you don't need to support IE11, you can replace the `stableSort` call with:
-     rows.slice().sort(getComparator(order, orderBy)) */}
+              {/* if you don't need to support IE11, you can replace the `stableSort` 
+                call with: rows.slice().sort(getComparator(order, orderBy)) */}
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {

@@ -23,48 +23,62 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
 
 export default function App3() {
+  const PAGE_SIZE = [5, 10];
+  const [order, setOrder] = React.useState("asc");
+  const [orderBy, setOrderBy] = React.useState("id");
+  const [selected, setSelected] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [dense, setDense] = React.useState(false);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [Product, setProduct] = React.useState([]);
   const [Counte, setCounte] = React.useState(0);
-  const [Skip, setSkip] = React.useState(0);
-  const [limit, setLimit] = React.useState(0);
+  const [skip, setSkip] = React.useState(0);
+  const [limit, setLimit] = React.useState(5);
+  const [Datashow, setDatashow] = React.useState();
 
   React.useEffect(() => {
-    fetch(`https://dummyjson.com/users?&skip=${Skip}&limit=10`)
+    fetch(`https://dummyjson.com/users?&skip=${skip}&limit=${limit}`)
       .then((res) => res.json())
       .then((json) => {
+        setDatashow(json);
         setProduct(json.users);
         setCounte(json.total);
-        setSkip(json.skip);
-        setLimit(json.limit);
         console.log(json);
         console.log(json.users);
-      });
-  }, []);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {});
+  }, [skip, limit]);
+
   const rows = [];
   //eslint-disable-next-line
   Product.map((item) => {
     rows.push(
       createData(
-        item.username,
-        item.password,
+        item.firstName,
+        item.lastName,
         item.id,
         item.phone,
         item.email,
-        item.address.address,
-        item.ip
+        item.address.city,
+        item.ip,
+        item.age
       )
     );
   });
 
-  function createData(username, password, id, phone, email, Address, ip) {
+  function createData(firstName, lastName, id, phone, email, Address, ip, age) {
     return {
-      username,
-      password,
+      firstName,
+      lastName,
       id,
       phone,
       email,
       Address,
       ip,
+      age,
     };
   }
 
@@ -102,15 +116,15 @@ export default function App3() {
     {
       id: "id",
       numeric: true,
-      label: "ID",
+      label: "@ IP",
     },
     {
-      id: "username",
-      label: "Usernames",
+      id: "firstName",
+      label: "first Name",
     },
     {
-      id: "password",
-      label: "Passwords",
+      id: "lastName",
+      label: "last Name",
     },
     {
       id: "phone",
@@ -122,11 +136,15 @@ export default function App3() {
     },
     {
       id: "Address",
-      label: "Address User",
+      label: "User City",
     },
+    // {
+    //   id: "ip",
+    //   label: "@IP",
+    // },
     {
-      id: "ip",
-      label: "@IP",
+      id: "age",
+      label: "Age",
     },
   ];
 
@@ -198,66 +216,68 @@ export default function App3() {
     const { numSelected } = props;
 
     return (
-      <Toolbar
-        sx={{
-          pl: { sm: 2 },
-          pr: { xs: 1, sm: 1 },
-          ...(numSelected > 0 && {
-            bgcolor: (theme) =>
-              alpha(
-                theme.palette.primary.main,
-                theme.palette.action.activatedOpacity
-              ),
-          }),
+      <div
+        style={{
+          width: "100%",
+          backgroundColor: "#B9B9B9",
+          borderTopLeftRadius: "20px",
+          borderTopRightRadius: "20px",
         }}
       >
-        {numSelected > 0 ? (
-          <Typography
-            sx={{ flex: "1 1 100%" }}
-            color="inherit"
-            variant="subtitle1"
-            component="div"
-          >
-            {numSelected} selected
-          </Typography>
-        ) : (
-          <Typography
-            sx={{ flex: "1 1 100%" }}
-            variant="h6"
-            id="tableTitle"
-            component="div"
-          >
-            Nutrition
-          </Typography>
-        )}
+        <Toolbar
+          sx={{
+            pl: { sm: 2 },
+            pr: { xs: 1, sm: 1 },
+            ...(numSelected > 0 && {
+              bgcolor: (theme) =>
+                alpha(
+                  theme.palette.primary.main,
+                  theme.palette.action.activatedOpacity
+                ),
+            }),
+          }}
+        >
+          {numSelected > 0 ? (
+            <Typography
+              sx={{ flex: "1 1 100%" }}
+              color="inherit"
+              variant="subtitle1"
+              component="div"
+            >
+              {numSelected} selected
+            </Typography>
+          ) : (
+            <Typography
+              sx={{ flex: "1 1 100%" }}
+              variant="h6"
+              id="tableTitle"
+              component="div"
+            >
+              Nutrition
+            </Typography>
+          )}
 
-        {numSelected > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton>
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton>
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-      </Toolbar>
+          {numSelected > 0 ? (
+            <Tooltip title="Delete">
+              <IconButton>
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Filter list">
+              <IconButton>
+                <FilterListIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Toolbar>
+      </div>
     );
   };
 
   EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
   };
-
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("id");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -266,19 +286,19 @@ export default function App3() {
   };
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.username);
+      const newSelected = rows.map((n) => n.firstName);
       setSelected(newSelected);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, username) => {
-    const selectedIndex = selected.indexOf(username);
+  const handleClick = (event, firstName) => {
+    const selectedIndex = selected.indexOf(firstName);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, username);
+      newSelected = newSelected.concat(selected, firstName);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -289,24 +309,36 @@ export default function App3() {
         selected.slice(selectedIndex + 1)
       );
     }
-
     setSelected(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+    setSkip(skip + 5);
+    setLimit(limit + 5);
+    console.log(Datashow);
+    console.log("====> skip :", skip, "====> limit :", limit);
+  };
+  const handleChangePage2 = () => {
+    setPage(0);
+    setSkip(0);
+    setLimit(5);
+    console.log(Datashow);
+    console.log("====> skip :", skip, "====> limit :", limit);
   };
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+    setSkip(skip + 10);
+    setLimit(parseInt(event.target.value, 10));
   };
 
   const handleChangeDense = (event) => {
     setDense(event.target.checked);
   };
 
-  const isSelected = (username) => selected.indexOf(username) !== -1;
+  const isSelected = (firstName) => selected.indexOf(firstName) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -314,88 +346,114 @@ export default function App3() {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
-        <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size={dense ? "small" : "medium"}
-          >
-            <EnhancedTableHead
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {/* if you don't need to support IE11, you can replace the `stableSort` 
+      <div
+        style={{
+          width: "100%",
+          backgroundColor: "#B9B9B9",
+          borderBottomLeftRadius: "20px",
+          borderBottomRightRadius: "20px",
+        }}
+      >
+        <Paper sx={{ width: "100%", mb: 2 }}>
+          <EnhancedTableToolbar numSelected={selected.length} />
+          <TableContainer>
+            <Table
+              style={{
+                backgroundColor: "#CCCCCc",
+              }}
+              sx={{ minWidth: 750 }}
+              aria-labelledby="tableTitle"
+              size={dense ? "small" : "medium"}
+            >
+              <EnhancedTableHead
+                numSelected={selected.length}
+                order={order}
+                orderBy={orderBy}
+                onSelectAllClick={handleSelectAllClick}
+                onRequestSort={handleRequestSort}
+                rowCount={rows.length}
+              />
+              <TableBody>
+                {/* if you don't need to support IE11, you can replace the `stableSort` 
                 call with: rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.username);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                {stableSort(rows, getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    const isItemSelected = isSelected(row.firstName);
+                    const labelId = `enhanced-table-checkbox-${index}`;
 
-                  return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, row.username)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.username}
-                      selected={isItemSelected}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          color="error"
-                          checked={isItemSelected}
-                          inputProps={{
-                            "aria-labelledby": labelId,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell component="th" id={labelId} scope="row">
-                        {row.id}
-                      </TableCell>
-                      <TableCell align="right">{row.username}</TableCell>
-                      <TableCell align="right">{row.password}</TableCell>
-                      <TableCell align="right">{row.phone}</TableCell>
-                      <TableCell align="right">{row.email}</TableCell>
-                      <TableCell align="right">{row.Address}</TableCell>
-                      <TableCell align="right">{row.ip}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 50, 100]}
-          component="div"
-          count={Counte}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+                    return (
+                      <TableRow
+                        hover
+                        onClick={(event) => handleClick(event, row.firstName)}
+                        role="checkbox"
+                        style={{
+                          backgroundColor: "#CCCCCc",
+                        }}
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.firstName}
+                        selected={isItemSelected}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            color="error"
+                            checked={isItemSelected}
+                            inputProps={{
+                              "aria-labelledby": labelId,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell component="th" id={labelId} scope="row">
+                          {row.ip}
+                        </TableCell>
+                        <TableCell align="right">{row.firstName}</TableCell>
+                        <TableCell align="right">{row.lastName}</TableCell>
+                        <TableCell align="right">{row.phone}</TableCell>
+                        <TableCell align="right">{row.email}</TableCell>
+                        <TableCell align="right">{row.Address}</TableCell>
+                        <TableCell align="right">{row.age}</TableCell>
+                        {/* <TableCell align="right">{row.ip}</TableCell> */}
+                      </TableRow>
+                    );
+                  })}
+                {emptyRows > 0 && (
+                  <TableRow
+                    style={{
+                      height: (dense ? 33 : 53) * emptyRows,
+                    }}
+                  >
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            style={{ backgroundColor: "#CCCCCc" }}
+            rowsPerPageOptions={PAGE_SIZE}
+            component="div"
+            count={Counte / 2}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            backIconButtonProps={{
+              onClick: handleChangePage2,
+              color: "primary",
+              label: "back",
+            }}
+            nextIconButtonProps={{
+              color: "secondary",
+              label: "Next",
+            }}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Paper>
+        <FormControlLabel
+          control={<Switch checked={dense} onChange={handleChangeDense} />}
+          label="Dense padding"
         />
-      </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
+      </div>
     </Box>
   );
 }

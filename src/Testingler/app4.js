@@ -2,15 +2,6 @@ import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { createFakeServer } from "@mui/x-data-grid-generator";
 
-const SERVER_OPTIONS = {
-  useCursorPagination: true,
-};
-
-const { columns, initialState, useQuery } = createFakeServer(
-  {},
-  SERVER_OPTIONS
-);
-
 export default function App4() {
   const mapPageToNextCursor = React.useRef({});
   const [pagesSize, setPagesSize] = React.useState(5);
@@ -22,6 +13,14 @@ export default function App4() {
       pageSize: pagesSize,
     }),
     [page]
+  );
+  const SERVER_OPTIONS = {
+    useCursorPagination: true,
+  };
+
+  const { columns, initialState, useQuery } = createFakeServer(
+    {},
+    SERVER_OPTIONS
   );
 
   /*const pagesSize = 5;*/
@@ -72,6 +71,7 @@ export default function App4() {
         columns={columns}
         initialState={initialState}
         pagination
+        checkboxSelection
         pageSize={pagesSize}
         rowsPerPageOptions={[5, 10, 25, 50, 100]}
         rowCount={rowCountState}

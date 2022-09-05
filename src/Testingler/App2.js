@@ -24,13 +24,16 @@ import { visuallyHidden } from "@mui/utils";
 import axios from "axios";
 
 export default function App2() {
+  const [loading, setloading] = React.useState(false);
   const [Product, setProduct] = React.useState([]);
   const [Counte, setCounte] = React.useState("");
-
-  const DataApi = async (skip) => {
+  const [Skip, setSkip] = React.useState(0);
+  const [top, setTop] = React.useState(5);
+  console.log("sssssssss :", Skip);
+  const DataApi = async () => {
     try {
       const Data = await axios.get(
-        `https://api.yamiz.fr/api/v1/products?$top=10&$skip=${skip}&$q=&$expand=category`
+        `https://api.yamiz.fr/api/v1/products?$top=${top}&$skip=${Skip}&$q=&$expand=category`
       );
       console.log(Data.data);
 
@@ -285,10 +288,12 @@ export default function App2() {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+    setSkip(top + Skip);
+    console.log("setskip :", Skip);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    // setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 

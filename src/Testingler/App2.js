@@ -1,74 +1,133 @@
 import * as React from "react";
-import PropTypes from "prop-types";
-import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
+import axios from "axios";
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
+import Switch from "@mui/material/Switch";
+import Tooltip from "@mui/material/Tooltip";
+import Toolbar from "@mui/material/Toolbar";
+import Checkbox from "@mui/material/Checkbox";
+import TableRow from "@mui/material/TableRow";
+import PropTypes from "prop-types";
+import TextField from "@mui/material/TextField";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import TableSortLabel from "@mui/material/TableSortLabel";
+import TableContainer from "@mui/material/TableContainer";
+import TablePagination from "@mui/material/TablePagination";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import ManageSearchIcon from "@mui/icons-material/ManageSearch";
 import { visuallyHidden } from "@mui/utils";
-import axios from "axios";
+import { styled } from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
+import InputAdornment from "@mui/material/InputAdornment";
+
+const SwitchForPadding = styled(Switch)(({ theme }) => ({
+  padding: 8,
+  "& .MuiSwitch-track": {
+    borderRadius: 22 / 2,
+    "&:before, &:after": {
+      content: '""',
+      position: "absolute",
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: 16,
+      height: 16,
+    },
+    "&:before": {
+      backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
+        theme.palette.getContrastText(theme.palette.primary.main)
+      )}" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/></svg>')`,
+      left: 12,
+    },
+    "&:after": {
+      backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
+        theme.palette.getContrastText(theme.palette.primary.main)
+      )}" d="M19,13H5V11H19V13Z" /></svg>')`,
+      right: 12,
+    },
+  },
+  "& .MuiSwitch-thumb": {
+    boxShadow: "none",
+    width: 16,
+    height: 16,
+    margin: 2,
+  },
+}));
 
 export default function App2() {
-  const [loading, setloading] = React.useState(false);
-  const [Product, setProduct] = React.useState([]);
-  const [Counte, setCounte] = React.useState("");
-  const [Skip, setSkip] = React.useState(0);
+  /**
+   *@@@@@@@@@# all useState #@@@@@@@@@@@@@
+   */
+  const [Counte, setCounte] = React.useState(0);
+  const [skip, setSkip] = React.useState(0);
   const [top, setTop] = React.useState(5);
-  console.log("sssssssss :", Skip);
-  const DataApi = async () => {
-    try {
-      const Data = await axios.get(
-        `https://api.yamiz.fr/api/v1/products?$top=${top}&$skip=${Skip}&$q=&$expand=category`
-      );
-      console.log(Data.data);
+  const [query, setQuery] = React.useState("");
+  const [rows, setRows] = React.useState([]);
+  // const [sort, setSort] = React.useState();
 
-      setProduct(Data.data.value);
-      setCounte(Data.data.count);
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
+  const [order, setOrder] = React.useState("asc");
+  const [orderBy, setOrderBy] = React.useState("id");
+  const [selected, setSelected] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [dense, setDense] = React.useState(false);
+  const [hieghtes, setHieghtes] = React.useState(false);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  /**
+   *@@@@@@@@@# Table row name #@@@@@@@@@@@@@
+   */
+  const headCells = [
+    {
+      id: "name",
+      label: "Names",
+    },
+    {
+      id: "id",
+      label: "ID",
+    },
+    {
+      id: "packaging",
+      label: "Packaging",
+    },
+    {
+      id: "salePackaging",
+      label: "Sale Packaging",
+    },
+    {
+      id: "created_at",
+      label: "Created at",
+    },
+  ];
 
+  /**
+   *@@@@@@@@@# API Version #@@@@@@@@@@@@@
+   */
   React.useEffect(() => {
-    DataApi();
-  }, []);
-  const rows = [];
-  //eslint-disable-next-line
-  Product.map((item) => {
-    rows.push(
-      createData(
-        item.name,
-        item.id,
-        item.packaging,
-        item.salePackaging,
-        item.created_at
-      )
-    );
-  });
-  function createData(name, id, packaging, salePackaging, created_at) {
-    return {
-      name,
-      id,
-      packaging,
-      salePackaging,
-      created_at,
+    const DataApi = async () => {
+      try {
+        const Data = await axios.get(
+          `https://api.yamiz.fr/api/v1/products?$top=${top}&$skip=${skip}&$q=${query}&$sort={name:${order}}`
+          //&$expand=category
+        );
+
+        console.log(Data.data);
+        setRows(Data?.data?.value);
+        setCounte(Data.data.count);
+      } catch (err) {
+        console.log("err", err);
+      }
     };
-  }
+    if (query.length === 0 || query.length >= 2) DataApi();
+  }, [top, skip, query, order]);
+
+  /**
+   *@@@@@@@@@# orderBy #@@@@@@@@@@@@@
+   */
 
   function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -99,29 +158,6 @@ export default function App2() {
     });
     return stabilizedThis.map((el) => el[0]);
   }
-
-  const headCells = [
-    {
-      id: "name",
-      label: "Names",
-    },
-    {
-      id: "id",
-      label: "id",
-    },
-    {
-      id: "packaging",
-      label: "packaging",
-    },
-    {
-      id: "salePackaging",
-      label: "salePackaging",
-    },
-    {
-      id: "created_at",
-      label: "created_at",
-    },
-  ];
 
   function EnhancedTableHead(props) {
     const {
@@ -191,66 +227,57 @@ export default function App2() {
     const { numSelected } = props;
 
     return (
-      <Toolbar
-        sx={{
-          pl: { sm: 2 },
-          pr: { xs: 1, sm: 1 },
-          ...(numSelected > 0 && {
-            bgcolor: (theme) =>
-              alpha(
-                theme.palette.primary.main,
-                theme.palette.action.activatedOpacity
-              ),
-          }),
-        }}
-      >
-        {numSelected > 0 ? (
-          <Typography
-            sx={{ flex: "1 1 100%" }}
-            color="inherit"
-            variant="subtitle1"
-            component="div"
-          >
-            {numSelected} selected
-          </Typography>
-        ) : (
-          <Typography
-            sx={{ flex: "1 1 100%" }}
-            variant="h6"
-            id="tableTitle"
-            component="div"
-          >
-            Nutrition
-          </Typography>
-        )}
+      <>
+        <Toolbar
+          sx={{
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
 
-        {numSelected > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton>
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton>
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-      </Toolbar>
+            bgcolor: (theme) =>
+              alpha(theme.palette.grey[700], theme.palette.action.focusOpacity),
+          }}
+        >
+          {numSelected > 0 ? (
+            <Typography
+              sx={{ flex: "1 1 100%" }}
+              color="inherit"
+              variant="subtitle1"
+              component="div"
+            >
+              {numSelected} selected
+            </Typography>
+          ) : (
+            <Typography
+              sx={{ flex: "1 1 100%" }}
+              variant="h6"
+              id="tableTitle"
+              component="div"
+            >
+              Le table yamiz
+            </Typography>
+          )}
+
+          {numSelected > 0 ? (
+            <Tooltip title="Delete">
+              <IconButton>
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Filter list">
+              <IconButton>
+                <FilterListIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Toolbar>
+      </>
     );
   };
 
   EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
   };
-
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("id");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -288,12 +315,16 @@ export default function App2() {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-    setSkip(top + Skip);
-    console.log("setskip :", Skip);
+    setSkip(top + skip);
+    /*
+     * const backSkip = (skip / top) * newPage;
+     * console.log("backSkip===> :", backSkip);
+     */
   };
-
   const handleChangeRowsPerPage = (event) => {
-    // setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setTop(parseInt(event.target.value));
+    setSkip(0);
     setPage(0);
   };
 
@@ -301,21 +332,81 @@ export default function App2() {
     setDense(event.target.checked);
   };
 
+  const handleChangehieghtes = (event) => {
+    setHieghtes(event.target.checked);
+  };
+
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const Pading = {
+    maxHeight: hieghtes ? 300 : 5000,
+  };
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", backgroundColor: "#FFF" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
+        <Box
+          sx={{
+            width: "auto",
+            maxWidth: "100%",
+            margin: 2,
+            marginX: 36,
+          }}
+        >
+          <TextField
+            style={{
+              backgroundColor: "#EEE",
+            }}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <ManageSearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            label="Search"
+            id="Search"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setSkip(0);
+            }}
+          />
+        </Box>
+
+        <FormControlLabel
+          control={
+            <SwitchForPadding
+              checked={hieghtes}
+              onChange={handleChangehieghtes}
+            />
+          }
+          label="Scroll "
+        />
+        <FormControlLabel
+          sx={{
+            marginX: 5,
+          }}
+          control={
+            <SwitchForPadding checked={dense} onChange={handleChangeDense} />
+          }
+          label="padding "
+        />
+
         <EnhancedTableToolbar numSelected={selected.length} />
-        <TableContainer>
+
+        <TableContainer sx={Pading}>
           <Table
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
             size={dense ? "small" : "medium"}
+            style={{
+              backgroundColor: "#CCC",
+            }}
           >
             <EnhancedTableHead
               numSelected={selected.length}
@@ -327,13 +418,12 @@ export default function App2() {
             />
             <TableBody>
               {/* if you don't need to support IE11, you can replace the `stableSort` call with:
-       rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
+              rows.slice().sort(getComparator(order, orderBy)) */}
+              {stableSort(rows, getComparator(order, orderBy)).map(
+                (row, index) => {
                   const isItemSelected = isSelected(row.name);
                   const labelId = `enhanced-table-checkbox-${index}`;
-
+                  const cleanDate = new Date(row.created_at).toDateString();
                   return (
                     <TableRow
                       hover
@@ -343,6 +433,9 @@ export default function App2() {
                       tabIndex={-1}
                       key={row.name}
                       selected={isItemSelected}
+                      style={{
+                        backgroundColor: "#BBB",
+                      }}
                     >
                       <TableCell padding="checkbox">
                         <Checkbox
@@ -364,19 +457,12 @@ export default function App2() {
                       <TableCell align="right">{row.id}</TableCell>
                       <TableCell align="right">{row.packaging}</TableCell>
                       <TableCell align="right">{row.salePackaging}</TableCell>
-                      <TableCell align="right">{row.created_at}</TableCell>
+                      <TableCell align="right">{cleanDate}</TableCell>
                     </TableRow>
                   );
-                })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
+                }
               )}
+              {emptyRows > 0 && <TableRow></TableRow>}
             </TableBody>
           </Table>
         </TableContainer>
@@ -388,12 +474,11 @@ export default function App2() {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          sx={{
+            backgroundColor: "#EEE",
+          }}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
     </Box>
   );
 }

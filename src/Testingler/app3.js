@@ -35,7 +35,7 @@ export default function App3() {
   const [skip, setSkip] = React.useState(0);
   const [limit, setLimit] = React.useState(5);
   const [Datashow, setDatashow] = React.useState();
-
+  //        `https://api.yamiz.fr/api/v1/products?$top=${top}&$skip=${Skip}&$q=&$expand=category`
   React.useEffect(() => {
     fetch(`https://dummyjson.com/users?&skip=${skip}&limit=${limit}`)
       .then((res) => res.json())

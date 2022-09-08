@@ -107,11 +107,14 @@ export default function App2() {
   /**
    *@@@@@@@@@# API Version #@@@@@@@@@@@@@
    */
+  const [type, setType] = React.useState("id");
   React.useEffect(() => {
     const DataApi = async () => {
       try {
         const Data = await axios.get(
-          `https://api.yamiz.fr/api/v1/products?$top=${top}&$skip=${skip}&$q=${query}&$sort={name:${order}}`
+          `https://api.yamiz.fr/api/v1/products?$top=${top}&$skip=${skip}&$q=${query}&$sort={${JSON.stringify(
+            type
+          )}:${JSON.stringify(order)}}`
           //&$expand=category
         );
 
@@ -123,7 +126,7 @@ export default function App2() {
       }
     };
     if (query.length === 0 || query.length >= 2) DataApi();
-  }, [top, skip, query, order]);
+  }, [top, skip, query, order ,type]);
 
   /**
    *@@@@@@@@@# orderBy #@@@@@@@@@@@@@
@@ -188,6 +191,7 @@ export default function App2() {
           </TableCell>
           {headCells.map((headCell) => (
             <TableCell
+              onClick={() => setType(headCell.id)}
               key={headCell.id}
               align={headCell.numeric ? "right" : "left"}
               padding={headCell.disablePadding ? "none" : "normal"}

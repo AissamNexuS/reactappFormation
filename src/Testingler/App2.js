@@ -23,10 +23,14 @@ import TablePagination from "@mui/material/TablePagination";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import ManageSearchIcon from "@mui/icons-material/ManageSearch";
 import { visuallyHidden } from "@mui/utils";
-import { styled } from "@mui/material/styles";
-import { alpha } from "@mui/material/styles";
+import { styled, useTheme, alpha } from "@mui/material/styles";
+
 import InputAdornment from "@mui/material/InputAdornment";
 
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import LastPageIcon from "@mui/icons-material/LastPage";
 const SwitchForPadding = styled(Switch)(({ theme }) => ({
   padding: 8,
   "& .MuiSwitch-track": {
@@ -69,7 +73,7 @@ export default function App2() {
   const [top, setTop] = React.useState(5);
   const [query, setQuery] = React.useState("");
   const [rows, setRows] = React.useState([]);
-  // const [sort, setSort] = React.useState();
+  const [type, setType] = React.useState("id");
 
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("id");
@@ -107,7 +111,7 @@ export default function App2() {
   /**
    *@@@@@@@@@# API Version #@@@@@@@@@@@@@
    */
-  const [type, setType] = React.useState("id");
+
   React.useEffect(() => {
     const DataApi = async () => {
       try {
@@ -126,7 +130,7 @@ export default function App2() {
       }
     };
     if (query.length === 0 || query.length >= 2) DataApi();
-  }, [top, skip, query, order ,type]);
+  }, [top, skip, query, order, type]);
 
   /**
    *@@@@@@@@@# orderBy #@@@@@@@@@@@@@
@@ -180,7 +184,7 @@ export default function App2() {
         <TableRow>
           <TableCell padding="checkbox">
             <Checkbox
-              color="warning"
+              color="success"
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={rowCount > 0 && numSelected === rowCount}
               onChange={onSelectAllClick}
@@ -191,6 +195,12 @@ export default function App2() {
           </TableCell>
           {headCells.map((headCell) => (
             <TableCell
+              sx={{
+                fontSize: "40",
+                fontFamily: "revert-layer",
+                fontWeight: "800",
+                color: "#1A76D2",
+              }}
               onClick={() => setType(headCell.id)}
               key={headCell.id}
               align={headCell.numeric ? "right" : "left"}
@@ -243,21 +253,32 @@ export default function App2() {
         >
           {numSelected > 0 ? (
             <Typography
-              sx={{ flex: "1 1 100%" }}
-              color="inherit"
-              variant="subtitle1"
+              sx={{
+                flex: "1 1 100%",
+                fontSize: "40",
+                fontFamily: "revert-layer",
+                fontWeight: "800",
+                color: "#2E7D32",
+              }}
+              variant="h6"
               component="div"
             >
               {numSelected} selected
             </Typography>
           ) : (
             <Typography
-              sx={{ flex: "1 1 100%" }}
               variant="h6"
+              sx={{
+                flex: "1 1 100%",
+                fontSize: "40",
+                fontFamily: "revert-layer",
+                fontWeight: "800",
+                color: "#1A76D2",
+              }}
               id="tableTitle"
               component="div"
             >
-              Le table yamiz
+              DataBase
             </Typography>
           )}
 
@@ -315,6 +336,79 @@ export default function App2() {
     }
 
     setSelected(newSelected);
+  };
+
+  function TablePaginationActions(props) {
+    const theme = useTheme();
+    const { count, page, rowsPerPage, onPageChange } = props;
+
+    const handleFirstPageButtonClick = (event) => {
+      onPageChange(event, 0);
+      setSkip(0);
+    };
+
+    const handleBackButtonClick = (event) => {
+      onPageChange(event, page - 1);
+      setSkip(skip - top);
+    };
+
+    const handleNextButtonClick = (event) => {
+      onPageChange(event, page + 1);
+      setSkip(skip + top);
+    };
+
+    const handleLastPageButtonClick = (event) => {
+      onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+      setSkip(Counte - top);
+    };
+
+    return (
+      <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+        <IconButton
+          onClick={handleFirstPageButtonClick}
+          disabled={page === 0}
+          aria-label="first page"
+        >
+          {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+        </IconButton>
+        <IconButton
+          onClick={handleBackButtonClick}
+          disabled={page === 0}
+          aria-label="previous page"
+        >
+          {theme.direction === "rtl" ? (
+            <KeyboardArrowRight />
+          ) : (
+            <KeyboardArrowLeft />
+          )}
+        </IconButton>
+        <IconButton
+          onClick={handleNextButtonClick}
+          disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+          aria-label="next page"
+        >
+          {theme.direction === "rtl" ? (
+            <KeyboardArrowLeft />
+          ) : (
+            <KeyboardArrowRight />
+          )}
+        </IconButton>
+        <IconButton
+          onClick={handleLastPageButtonClick}
+          disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+          aria-label="last page"
+        >
+          {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+        </IconButton>
+      </Box>
+    );
+  }
+
+  TablePaginationActions.propTypes = {
+    count: PropTypes.number.isRequired,
+    onPageChange: PropTypes.func.isRequired,
+    page: PropTypes.number.isRequired,
+    rowsPerPage: PropTypes.number.isRequired,
   };
 
   const handleChangePage = (event, newPage) => {
@@ -443,7 +537,7 @@ export default function App2() {
                     >
                       <TableCell padding="checkbox">
                         <Checkbox
-                          color="error"
+                          color="primary"
                           checked={isItemSelected}
                           inputProps={{
                             "aria-labelledby": labelId,
@@ -455,13 +549,54 @@ export default function App2() {
                         id={labelId}
                         scope="row"
                         padding="none"
+                        sx={{
+                          fontSize: "40",
+                          fontFamily: "serif",
+                          fontWeight: "500",
+                        }}
                       >
                         {row.name}
                       </TableCell>
-                      <TableCell align="right">{row.id}</TableCell>
-                      <TableCell align="right">{row.packaging}</TableCell>
-                      <TableCell align="right">{row.salePackaging}</TableCell>
-                      <TableCell align="right">{cleanDate}</TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "40",
+                          fontFamily: "monospace",
+                          fontWeight: "500",
+                        }}
+                        align="right"
+                      >
+                        {row.id}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "40",
+                          fontFamily: "monospace",
+                          fontWeight: "500",
+                        }}
+                        align="right"
+                      >
+                        {row.packaging}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "40",
+                          fontFamily: "monospace",
+                          fontWeight: "500",
+                        }}
+                        align="right"
+                      >
+                        {row.salePackaging}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "40",
+                          fontFamily: "monospace",
+                          fontWeight: "500",
+                        }}
+                        align="right"
+                      >
+                        {cleanDate}
+                      </TableCell>
                     </TableRow>
                   );
                 }
@@ -477,8 +612,12 @@ export default function App2() {
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
+          ActionsComponent={TablePaginationActions}
           onRowsPerPageChange={handleChangeRowsPerPage}
           sx={{
+            fontSize: "40",
+            fontFamily: "serif",
+            fontWeight: "500",
             backgroundColor: "#EEE",
           }}
         />

@@ -24,13 +24,15 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import ManageSearchIcon from "@mui/icons-material/ManageSearch";
 import { visuallyHidden } from "@mui/utils";
 import { styled, useTheme, alpha } from "@mui/material/styles";
-
 import InputAdornment from "@mui/material/InputAdornment";
-
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
+
+/**
+ * @@@@@@@@@#   style de switch   #@@@@@@@@@@
+ */
 const SwitchForPadding = styled(Switch)(({ theme }) => ({
   padding: 8,
   "& .MuiSwitch-track": {
@@ -64,6 +66,10 @@ const SwitchForPadding = styled(Switch)(({ theme }) => ({
   },
 }));
 
+/**
+ * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ */
+
 export default function App2() {
   /**
    *@@@@@@@@@# all useState #@@@@@@@@@@@@@
@@ -74,7 +80,6 @@ export default function App2() {
   const [query, setQuery] = React.useState("");
   const [rows, setRows] = React.useState([]);
   const [type, setType] = React.useState("id");
-
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("id");
   const [selected, setSelected] = React.useState([]);
@@ -82,6 +87,7 @@ export default function App2() {
   const [dense, setDense] = React.useState(false);
   const [hieghtes, setHieghtes] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
   /**
    *@@@@@@@@@# Table row name #@@@@@@@@@@@@@
    */
@@ -133,7 +139,7 @@ export default function App2() {
   }, [top, skip, query, order, type]);
 
   /**
-   *@@@@@@@@@# orderBy #@@@@@@@@@@@@@
+   *@@@@@@@@@# function de order de les elemnets #@@@@@@@@@@@@@
    */
 
   function descendingComparator(a, b, orderBy) {
@@ -152,8 +158,6 @@ export default function App2() {
       : (a, b) => -descendingComparator(a, b, orderBy);
   }
 
-  // This method is created for cross-browser compatibility, if you don't
-  // need to support IE11, you can use Array.prototype.sort() directly
   function stableSort(array, comparator) {
     const stabilizedThis = array.map((el, index) => [el, index]);
     stabilizedThis.sort((a, b) => {
@@ -165,7 +169,9 @@ export default function App2() {
     });
     return stabilizedThis.map((el) => el[0]);
   }
-
+  /**
+   *@@@@@@@@@# function de propsTypes #@@@@@@@@@@@@@
+   */
   function EnhancedTableHead(props) {
     const {
       onSelectAllClick,
@@ -178,7 +184,9 @@ export default function App2() {
     const createSortHandler = (property) => (event) => {
       onRequestSort(event, property);
     };
-
+    /**
+     *@@@@@@@@@# return de header de table #@@@@@@@@@@@@@
+     */
     return (
       <TableHead>
         <TableRow>
@@ -227,7 +235,9 @@ export default function App2() {
       </TableHead>
     );
   }
-
+  /**
+   *@@@@@@@@@# propTypes pour spécifer type de les elements #@@@@@@@@@@@@@
+   */
   EnhancedTableHead.propTypes = {
     numSelected: PropTypes.number.isRequired,
     onRequestSort: PropTypes.func.isRequired,
@@ -237,6 +247,9 @@ export default function App2() {
     rowCount: PropTypes.number.isRequired,
   };
 
+  /**
+   *@@@@@@@@@# fonction de header si un elemnts et clicker #@@@@@@@@@@@@@
+   */
   const EnhancedTableToolbar = (props) => {
     const { numSelected } = props;
 
@@ -304,11 +317,17 @@ export default function App2() {
     numSelected: PropTypes.number.isRequired,
   };
 
+  /**
+   *@@@@@@@@@# sorted mod desc or asc function #@@@@@@@@@@@@@
+   */
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
+  /**
+   *@@@@@@@@@# selection des elements #@@@@@@@@@@@@@
+   */
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelected = rows.map((n) => n.name);
@@ -337,7 +356,9 @@ export default function App2() {
 
     setSelected(newSelected);
   };
-
+  /**
+   *@@@@@@@@@# function de les bottun de pagination (avec skip et top)#@@@@@@@@@@@@@
+   */
   function TablePaginationActions(props) {
     const theme = useTheme();
     const { count, page, rowsPerPage, onPageChange } = props;
@@ -368,6 +389,9 @@ export default function App2() {
           onClick={handleFirstPageButtonClick}
           disabled={page === 0}
           aria-label="first page"
+          sx={{
+            color: "royalblue",
+          }}
         >
           {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
         </IconButton>
@@ -375,6 +399,9 @@ export default function App2() {
           onClick={handleBackButtonClick}
           disabled={page === 0}
           aria-label="previous page"
+          sx={{
+            color: "coral",
+          }}
         >
           {theme.direction === "rtl" ? (
             <KeyboardArrowRight />
@@ -386,6 +413,9 @@ export default function App2() {
           onClick={handleNextButtonClick}
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="next page"
+          sx={{
+            color: "coral",
+          }}
         >
           {theme.direction === "rtl" ? (
             <KeyboardArrowLeft />
@@ -397,27 +427,30 @@ export default function App2() {
           onClick={handleLastPageButtonClick}
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="last page"
+          sx={{
+            color: "royalblue",
+          }}
         >
           {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
         </IconButton>
       </Box>
     );
   }
-
+  /**
+   *@@@@@@@@@# propTypes pour spécifer type de les elements #@@@@@@@@@@@@@
+   */
   TablePaginationActions.propTypes = {
     count: PropTypes.number.isRequired,
     onPageChange: PropTypes.func.isRequired,
     page: PropTypes.number.isRequired,
     rowsPerPage: PropTypes.number.isRequired,
   };
-
+  /**
+   *@@@@@@@@@# function de les bottun de pagination (avec skip et top) #@@@@@@@@@@@@@
+   */
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
     setSkip(top + skip);
-    /*
-     * const backSkip = (skip / top) * newPage;
-     * console.log("backSkip===> :", backSkip);
-     */
   };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -436,13 +469,17 @@ export default function App2() {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  /**
+   *@@@@@@@@@# eswitch padding #@@@@@@@@@@@@@
+   */
   const Pading = {
     maxHeight: hieghtes ? 300 : 5000,
   };
-
+  /**
+   *@@@@@@@@@# return de le table generale #@@@@@@@@@@@@@
+   */
   return (
     <Box sx={{ width: "100%", backgroundColor: "#FFF" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
@@ -454,6 +491,10 @@ export default function App2() {
             marginX: 36,
           }}
         >
+          {/**
+           *@@@@@@@@@# Search input #@@@@@@@@@@@@@
+           */}
+
           <TextField
             style={{
               backgroundColor: "#EEE",
@@ -475,7 +516,9 @@ export default function App2() {
             }}
           />
         </Box>
-
+        {/**
+         *@@@@@@@@@# Switch View #@@@@@@@@@@@@@
+         */}
         <FormControlLabel
           control={
             <SwitchForPadding
@@ -494,9 +537,13 @@ export default function App2() {
           }
           label="padding "
         />
-
+        {/**
+         *@@@@@@@@@# le nombre de elements selecté #@@@@@@@@@@@@@
+         */}
         <EnhancedTableToolbar numSelected={selected.length} />
-
+        {/**
+         *@@@@@@@@@# Le table principale #@@@@@@@@@@@@@
+         */}
         <TableContainer sx={Pading}>
           <Table
             sx={{ minWidth: 750 }}
@@ -515,8 +562,6 @@ export default function App2() {
               rowCount={rows.length}
             />
             <TableBody>
-              {/* if you don't need to support IE11, you can replace the `stableSort` call with:
-              rows.slice().sort(getComparator(order, orderBy)) */}
               {stableSort(rows, getComparator(order, orderBy)).map(
                 (row, index) => {
                   const isItemSelected = isSelected(row.name);
@@ -605,6 +650,9 @@ export default function App2() {
             </TableBody>
           </Table>
         </TableContainer>
+        {/**
+         *@@@@@@@@@# pagination de page  #@@@@@@@@@@@@@
+         */}
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
@@ -612,8 +660,8 @@ export default function App2() {
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
-          ActionsComponent={TablePaginationActions}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          ActionsComponent={TablePaginationActions}
           sx={{
             fontSize: "40",
             fontFamily: "serif",

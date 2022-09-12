@@ -1,19 +1,36 @@
 import * as React from "react";
-// import App4 from "./Testingler/app4";
-// import App3 from "./Testingler/app3";
-// import App2 from "./Testingler/App2";
-// import StickyHeadTable from "./Testingler/Datatest";
-// import MiniDrawer from "./Testingler/MenuDrawer";
-import YamisTable from "./screen/YamisTable";
-export default function app() {
+import Home from "./page/home/Home";
+import Login from "./page/login/Login";
+import List from "./page/list/List";
+import Signle from "./page/single/Signle";
+import New from "./page/new/New";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+const App = () => {
   return (
-    <div className="app">
-      {/* <StickyHeadTable /> */}
-      {/* <App2 /> */}
-      {/* <MiniDrawer /> */}
-      {/* <App3 /> */}
-      <YamisTable />
-      {/* <App4 /> */}
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/">
+            <Route index element={<Home />} />
+          </Route>
+          <Route path="login" element={<Login />} />
+          <Route path="users">
+            <Route index element={<List />} />
+            <Route path=":userId" element={<Signle />} />
+            <Route path="new" element={<New />} />
+            <Route index element={<Signle />} />
+          </Route>
+          <Route path="products">
+            <Route index element={<List />} />
+            <Route path=":productsId" element={<Signle />} />
+            <Route path="new" element={<New />} />
+            <Route index element={<Signle />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+      ,
     </div>
   );
-}
+};
+export default App;

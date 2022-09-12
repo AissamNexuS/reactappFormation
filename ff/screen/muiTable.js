@@ -36,15 +36,14 @@ const SwitchForPadding = styled(Switch)(({ theme }) => ({
   padding: 8,
   "& .MuiSwitch-track": {
     borderRadius: 22 / 2,
-    "                                                                 &:before, &:after":
-      {
-        content: '""',
-        position: "absolute",
-        top: "50%",
-        transform: "translateY(-50%)",
-        width: 16,
-        height: 16,
-      },
+    "&:before, &:after": {
+      content: '""',
+      position: "absolute",
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: 16,
+      height: 16,
+    },
     "&:before": {
       backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
         theme.palette.getContrastText(theme.palette.primary.main)
@@ -72,13 +71,7 @@ export default function MuiTable(props) {
   /**
    *@@@@@@@@@# all useState #@@@@@@@@@@@@@
    */
-  const [Counte, setCounte] = React.useState(0);
-  const [skip, setSkip] = React.useState(0);
-  const [top, setTop] = React.useState(5);
-  const [query, setQuery] = React.useState("");
-  const [rows, setRows] = React.useState([]);
-  const [type, setType] = React.useState("id");
-  const [order, setOrder] = React.useState("asc");
+
   const [orderBy, setOrderBy] = React.useState("id");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
@@ -120,25 +113,6 @@ export default function MuiTable(props) {
   /**
    *@@@@@@@@@# API Version #@@@@@@@@@@@@@
    */
-
-  React.useEffect(() => {
-    const DataApi = async () => {
-      try {
-        const Data = await axios.get(
-          `https://api.yamiz.fr/api/v1/products?$top=${top}&$skip=${skip}&$q=${query}&$sort={${JSON.stringify(
-            type
-          )}:${JSON.stringify(order)}}`
-        );
-        //&$expand=category
-        console.log(Data.data);
-        setRows(Data?.data?.value);
-        setCounte(Data.data.count);
-      } catch (err) {
-        console.log("err", err);
-      }
-    };
-    if (query.length === 0 || query.length >= 2) DataApi();
-  }, [top, skip, query, order, type]);
 
   /**
    *@@@@@@@@@# function de order de les elemnets #@@@@@@@@@@@@@
@@ -317,7 +291,7 @@ export default function MuiTable(props) {
    *@@@@@@@@@# sorted mod desc or asc function #@@@@@@@@@@@@@
    */
   const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
+    const isAsc = orderBy === property && props.order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
@@ -326,7 +300,7 @@ export default function MuiTable(props) {
    */
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
+      const newSelected = props.rows.map((n) => n.name);
       setSelected(newSelected);
       return;
     }
@@ -353,7 +327,7 @@ export default function MuiTable(props) {
     setSelected(newSelected);
   };
   /**
-   *@@@@@@@@@# function de les bottun de pagination (avec skip et top)#@@@@@@@@@@@@@
+   *@@@@@@@@@# function de les bottun de pagination (avec props.skip et props.top)#@@@@@@@@@@@@@
    */
   function TablePaginationActions(props) {
     const theme = useTheme();
@@ -366,17 +340,17 @@ export default function MuiTable(props) {
 
     const handleBackButtonClick = (event) => {
       onPageChange(event, page - 1);
-      setSkip(skip - top);
+      setSkip(props.skip - props.top);
     };
 
     const handleNextButtonClick = (event) => {
       onPageChange(event, page + 1);
-      setSkip(skip + top);
+      setSkip(props.skip + props.top);
     };
 
     const handleLastPageButtonClick = (event) => {
       onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-      setSkip(Counte - top);
+      setSkip(props.Counte - props.top);
     };
 
     return (
@@ -442,11 +416,11 @@ export default function MuiTable(props) {
     rowsPerPage: PropTypes.number.isRequired,
   };
   /**
-   *@@@@@@@@@# function de les bottun de pagination (avec skip et top) #@@@@@@@@@@@@@
+   *@@@@@@@@@# function de les bottun de pagination (avec props.skip et props.top) #@@@@@@@@@@@@@
    */
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-    setSkip(top + skip);
+    setSkip(props.top + props.skip);
   };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -466,7 +440,7 @@ export default function MuiTable(props) {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - props.rows.length) : 0;
   /**
    *@@@@@@@@@# Switch padding #@@@@@@@@@@@@@
    */
@@ -505,7 +479,7 @@ export default function MuiTable(props) {
             }}
             label="Search"
             id="Search"
-            value={query}
+            value={props.query}
             onChange={(event) => {
               setQuery(event.target.value);
               setSkip(0);
@@ -554,14 +528,14 @@ export default function MuiTable(props) {
           >
             <EnhancedTableHead
               numSelected={selected.length}
-              order={order}
+              order={props.order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={props.rows.length}
             />
             <TableBody>
-              {stableSort(rows, getComparator(order, orderBy)).map(
+              {stableSort(props.rows, getComparator(props.order, orderBy)).map(
                 (row, index) => {
                   const isItemSelected = isSelected(row.name);
                   const labelId = `enhanced-table-checkbox-${index}`;
@@ -655,7 +629,7 @@ export default function MuiTable(props) {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={Counte}
+          count={props.Counte}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

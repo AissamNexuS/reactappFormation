@@ -68,7 +68,7 @@ const SwitchForPadding = styled(Switch)(({ theme }) => ({
 
 //----------------------------------------------------------------------------------\\
 
-export default function App2(props) {
+export default function MuiTable(props) {
   /**
    *@@@@@@@@@# all useState #@@@@@@@@@@@@@
    */
@@ -128,9 +128,8 @@ export default function App2(props) {
           `https://api.yamiz.fr/api/v1/products?$top=${top}&$skip=${skip}&$q=${query}&$sort={${JSON.stringify(
             type
           )}:${JSON.stringify(order)}}`
-          //&$expand=category
         );
-
+        //&$expand=category
         console.log(Data.data);
         setRows(Data?.data?.value);
         setCounte(Data.data.count);

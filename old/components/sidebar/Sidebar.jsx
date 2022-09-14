@@ -71,6 +71,7 @@ const Sidebar = () => {
         <div className="coloropation"></div>
       </div>
     </div>
+    
   );
 };
 export default Sidebar;
